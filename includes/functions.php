@@ -36,35 +36,42 @@ function af_p5_settings_page2() {
 }
 
 function pl6_leaflet_shortcode() {
-  $markers = [];
-  for ($i = 1; $i <= get_option('af_p5_number_marqueur'); $i++) {
-    $markers[] = 'let marker'.$i.' = L.marker(['.get_option('af_p5_m' . $i . '_long').', '.get_option('af_p5_m' . $i . '_lat').']).addTo(mymap);';
-  }
-  $markers_js = '';
-  foreach ($markers as $marker) {
-    $markers_js = $markers_js.$marker;
-  }
-  $map =
-      '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-   crossorigin=""/>
-   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-crossorigin=""></script>
-         <div id="map" style="height: 500px;"></div>
-        <script>
-            var mymap = L.map(\'map\').setView(['.get_option('af_p5_center_map_long').', '.get_option('af_p5_center_map_lat').'], '.get_option('af_p5_map_zoom_level').');
-
-            L.tileLayer(\'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}\', {
-    attribution: \'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>\',
-    maxZoom: 18,
-    id: \'mapbox/streets-v11\',
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken: \'pk.eyJ1IjoiY2Fyb25pNjY1NCIsImEiOiJja3diMTF2MTMxN2NnMm5xbTJyNzQzNGI3In0.lcmpShXB8OlPUwjPp9uMNw\'
-}).addTo(mymap);'.$markers_js.'
-        </script>';
-  return $map;
+  $SearchBar = "<div class='jumbotron' style='background-color:;'><input type='text' name='SearchBar' placeholder='Search for an artist, song, album,...'
+   class='SearchBar text-center'/></td>
+  <button class='BtnSearch text-center'>search</button></div>";
+  return $SearchBar;
 }
 
-add_shortcode('af_leaflet', 'pl6_leaflet_shortcode');
+add_shortcode('Spotify_SearchBar', 'pl6_leaflet_shortcode');
+
+?>
+<html>
+  <head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  </head>
+  <style>
+      .SearchBar{
+        height:30px;
+        width:50%;
+        border-radius:5px;
+        border-width:1px;
+        margin-left:21.5%;
+        border-color:#1db954;
+        background-color:black;
+        color:#1db954;
+        text-align: center;
+        align-items:center;
+      }
+
+      .BtnSearch{
+        height:30px;
+        border-radius:5px;
+        border-width:1px;
+        border-color:#1db954;
+        background-color:black;
+        color:#1db954;
+        text-align: center;
+      }
+  </style>
+</html>
+
