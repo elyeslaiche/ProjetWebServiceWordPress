@@ -36,7 +36,18 @@ function create_database()
                 );
             ";
 
+    $req2 = "
+            CREATE TABLE IF NOT EXISTS records (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                keyword VARCHAR(255) NOT NULL,
+                research_type VARCHAR(255) NOT NULL,
+                record VARCHAR NOT NULL,
+                timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            ";
+
     $db->exec($req1);
+    $db->exec($req2);
 
     // Close the database connection
     $db->close();
