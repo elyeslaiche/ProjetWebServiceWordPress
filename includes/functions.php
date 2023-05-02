@@ -39,7 +39,7 @@ function database()
   include_once('display_database.php');
 }
 
-function pl6_leaflet_shortcode()
+function spotify_shortcode()
 {
   $SearchBar = "
   <div class='jumbotron' id='jumbodiv'><input type='text' id='searchBar' name='SearchBar' placeholder='Search for an artist, song, album,...'class='SearchBar text-center'/>
@@ -47,7 +47,7 @@ function pl6_leaflet_shortcode()
   return $SearchBar;
 }
 
-add_shortcode('Spotify_SearchBar', 'pl6_leaflet_shortcode');
+add_shortcode('Spotify_SearchBar', 'spotify_shortcode');
 
 ?>
 <html>
