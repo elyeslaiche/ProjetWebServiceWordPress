@@ -44,6 +44,61 @@ function get_access_token()
     return $access_token;
 }
 
+function displaySearchResults($search_response, $query) {
+    // Decode the response JSON into an associative array
+    $search_data = json_decode($search_response, true);
+
+    // Print the search results
+    echo "<h2>Search Results for '$query':</h2>";
+
+    // Print the track results
+    if (isset($search_data['tracks']['items'])) {
+        echo "<h3>Tracks:</h3>";
+        echo "<ul>";
+        foreach ($search_data['tracks']['items'] as $track) {
+            echo "<li>";
+            if (isset($track['album']['images'][0]['url'])) {
+                echo "<img src='" . $track['album']['images'][0]['url'] . "' width='64' height='64' style='float:left; margin-right:10px;'>";
+            }
+            echo "<h4>" . $track['name'] . "</h4>";
+            echo "<p>by " . $track['artists'][0]['name'] . "</p>";
+            echo "</li>";
+        }
+        echo "</ul>";
+    }
+
+    // Print the album results
+    if (isset($search_data['albums']['items'])) {
+        echo "<h3>Albums:</h3>";
+        echo "<ul>";
+        foreach ($search_data['albums']['items'] as $album) {
+            echo "<li>";
+            if (isset($album['images'][0]['url'])) {
+                echo "<img src='" . $album['images'][0]['url'] . "' width='64' height='64' style='float:left; margin-right:10px;'>";
+            }
+            echo "<h4>" . $album['name'] . "</h4>";
+            echo "<p>by " . $album['artists'][0]['name'] . "</p>";
+            echo "</li>";
+        }
+        echo "</ul>";
+    }
+
+    // Print the artist results
+    if (isset($search_data['artists']['items'])) {
+        echo "<h3>Artists:</h3>";
+        echo "<ul>";
+        foreach ($search_data['artists']['items'] as $artist) {
+            echo "<li>";
+            if (isset($artist['images'][0]['url'])) {
+                echo "<img src='" . $artist['images'][0]['url'] . "' width='64' height='64' style='float:left; margin-right:10px;'>";
+            }
+            echo "<h4>" . $artist['name'] . "</h4>";
+            echo "</li>";
+        }
+        echo "</ul>";
+    }
+}
+
 $access_token = get_access_token();
 
 // Define the Spotify API search endpoint
@@ -72,6 +127,7 @@ $search_url = $search_endpoint . '?' . http_build_query(
     )
 );
 
+
 // Create the stream context with the options
 $search_context = stream_context_create($search_options);
 
@@ -81,33 +137,6 @@ $search_response = file_get_contents($search_url, false, $search_context);
 // Decode the response JSON into an associative array
 $search_data = json_decode($search_response, true);
 
-echo "Search Results for '$query':\n\n";
-
-// Print the track results
-if (isset($search_data['tracks']['items'])) {
-    echo "Tracks:\n";
-    foreach ($search_data['tracks']['items'] as $track) {
-        echo "\t" . $track['name'] . " - " . $track['artists'][0]['name'] . "\n";
-    }
-    echo "\n";
-}
-
-// Print the album results
-if (isset($search_data['albums']['items'])) {
-    echo "Albums:\n";
-    foreach ($search_data['albums']['items'] as $album) {
-        echo "\t" . $album['name'] . " - " . $album['artists'][0]['name'] . "\n";
-    }
-    echo "\n";
-}
-
-// Print the artist results
-if (isset($search_data['artists']['items'])) {
-    echo "Artists:\n";
-    foreach ($search_data['artists']['items'] as $artist) {
-        echo "\t" . $artist['name'] . "\n";
-    }
-    echo "\n";
-}
+displaySearchResults($search_response, $query)
 
 ?>
