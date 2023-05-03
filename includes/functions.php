@@ -48,6 +48,7 @@ function spotify_shortcode()
 }
 
 add_shortcode('Spotify_SearchBar', 'spotify_shortcode');
+wp_enqueue_style( 'spotify-shortcode-styles', plugins_url( 'searchbar.css', __FILE__ ) );
 
 ?>
 <html>
@@ -57,56 +58,14 @@ add_shortcode('Spotify_SearchBar', 'spotify_shortcode');
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"
     integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
 </head>
-<style>
-  .SearchBar {
-    height: 30px;
-    width: 50%;
-    border-radius: 5px;
-    border-width: 1px;
-    margin-left: 21.5%;
-    margin-bottom:2rem;
-    border-color: #1db954;
-    background-color: black;
-    color: #1db954;
-    text-align: center;
-    align-items: center;
-  }
-
-  .jumbotron {
-    border-radius: 10px;
-    border-width: 1px;
-    background-color:lightgray
-  }
-
-  .BtnSearch {
-    height: 30px;
-    border-radius: 5px;
-    border-width: 1px;
-    border-color: #1db954;
-    background-color: black;
-    color: #1db954;
-    text-align: center;
-  }
-
-  #resultdiv{
-    width:75%;
-    margin-left:auto;
-    margin-right:auto;
-  }
-
-  pre{
-    background-color:lightgray;
-    border-color:lightgray;
-    text-align: justify;
-  }
-</style>
 
 <script>
-  function onclickSearchBTN() {
+  function onclickSearchBTN(path) {
     var dataString = { 'value': $('#searchBar').val() };
+    console.log(path)
     $.ajax({
       type: 'GET',
-      url: 'http://localhost:8888/Web%20Services/wordpress/wp-content/plugins/ProjetWebServiceWordPress/includes/spotify.php',
+      url: '<?php echo plugins_url( 'spotify.php', __FILE__ )?>',
       data: dataString,
       success: function (response) {
 
