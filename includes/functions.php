@@ -60,9 +60,8 @@ wp_enqueue_style( 'spotify-shortcode-styles', plugins_url( 'searchbar.css', __FI
 </head>
 
 <script>
-  function onclickSearchBTN(path) {
+  function onclickSearchBTN() {
     var dataString = { 'value': $('#searchBar').val() };
-    console.log(path)
     $.ajax({
       type: 'GET',
       url: '<?php echo plugins_url( 'spotify.php', __FILE__ )?>',
