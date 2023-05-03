@@ -1,5 +1,5 @@
 <?php
-
+require_once 'config.php';
 define('CLIENT_ID', '8c9426efdfa64888967e134c1b5b032c');
 define('CLIENT_SECRET', 'f7993950aea54e1c8868f93ed4de4def');
 
@@ -42,6 +42,27 @@ function get_access_token()
     $access_token = $response_data['access_token'];
 
     return $access_token;
+}
+
+function connectToDb($dbname){
+
+$parent_dir = str_replace('\\', '/', dirname(__DIR__));
+// Path to the SQLite database file
+$conn = $parent_dir. '/' . $dbname;
+
+// Connexion à la base de données SQLite
+$db = new SQLite3($conn);
+
+// Récupération des données de la table records
+$req1 = "SELECT * FROM Records";
+$result = $db->query($req1);
+
+// Fermeture de la connexion à la base de données
+while ($row = $result->fetchArray()) {
+    echo '<br>'. $row['keyword'] . ', ' . $row['research_type'];
+}
+
+$db->close();
 }
 
 function displaySearchResults($search_response, $query) {
@@ -137,6 +158,7 @@ $search_response = file_get_contents($search_url, false, $search_context);
 // Decode the response JSON into an associative array
 $search_data = json_decode($search_response, true);
 
-displaySearchResults($search_response, $query)
+displaySearchResults($search_response, $query);
 
+connectToDb($dbname);
 ?>
