@@ -3,6 +3,7 @@ require_once 'config.php';
 define('CLIENT_ID', '8c9426efdfa64888967e134c1b5b032c');
 define('CLIENT_SECRET', 'f7993950aea54e1c8868f93ed4de4def');
 
+$local = false;
 
 function get_access_token()
 {
@@ -44,33 +45,88 @@ function get_access_token()
     return $access_token;
 }
 
-function connectToDb($dbname){
+function checkKeyWordDb($dbname, $keyword)
+{
 
-$parent_dir = str_replace('\\', '/', dirname(__DIR__));
-// Path to the SQLite database file
-$conn = $parent_dir. '/' . $dbname;
+    $parent_dir = str_replace('\\', '/', dirname(__DIR__));
+    // Path to the SQLite database file
+    $conn = $parent_dir . '/' . $dbname;
 
-// Connexion à la base de données SQLite
-$db = new SQLite3($conn);
+    // Connexion à la base de données SQLite
+    $db = new SQLite3($conn);
 
-// Récupération des données de la table records
-$req1 = "SELECT * FROM Records";
-$result = $db->query($req1);
+    // Récupération des données de la table records
+    $req1 = "SELECT record FROM records where keyword like '%" . $keyword . "%'";
+    $result = $db->query($req1);
 
-// Fermeture de la connexion à la base de données
-while ($row = $result->fetchArray()) {
-    echo '<br>'. $row['keyword'] . ', ' . $row['research_type'];
+
+    // Fermeture de la connexion à la base de données
+    if ($row = $result->fetchArray()) {
+        return true;
+    }
+
+    $db->close();
+    return false;
 }
 
-$db->close();
+function getKeyWordFromDb($dbname, $keyword)
+{
+    $parent_dir = str_replace('\\', '/', dirname(__DIR__));
+    // Path to the SQLite database file
+    $conn = $parent_dir . '/' . $dbname;
+
+    // Connexion à la base de données SQLite
+    $db = new SQLite3($conn);
+
+    // Récupération des données de la table records
+    $req1 = "SELECT record FROM records where keyword like '%" . $keyword . "%'";
+    $result = $db->query($req1);
+
+
+    // Fermeture de la connexion à la base de données
+    $row = $result->fetchArray();
+    $db->close();
+    return $row[0];
+
 }
 
-function displaySearchResults($search_response, $query) {
+function insertintoDB($dbname, $keyword, $jsonResponse, $types)
+{
+    $parent_dir = str_replace('\\', '/', dirname(__DIR__));
+    // Path to the SQLite database file
+    $conn = $parent_dir . '/' . $dbname;
+
+    // Connexion à la base de données SQLite
+    $db = new SQLite3($conn);
+
+    // Récupération des données de la table records
+    $stmt = $db->prepare('INSERT INTO records (record, keyword, research_type, timestamp) VALUES (:value1, :value2, :value3, :value4)');
+
+    // bind the values to the parameters in the SQL statement
+    $stmt->bindValue(':value1', $jsonResponse);
+    $stmt->bindValue(':value2', $keyword);
+    $stmt->bindValue(':value3', $types);
+    $stmt->bindValue(':value4', date(DATE_ATOM));
+
+    // execute the SQL statement
+    $stmt->execute();
+
+    // Fermeture de la connexion à la base de données
+    $db->close();
+}
+
+
+function displaySearchResults($search_response, $query, $local)
+{
     // Decode the response JSON into an associative array
     $search_data = json_decode($search_response, true);
 
-    // Print the search results
-    echo "<h2>Search Results for '$query':</h2>";
+    if ($local) {
+        // Print the search results
+        echo "<h2>Search Results for '$query' local:</h2>";
+    } else {
+        echo "<h2>Search Results for '$query' from spotify DB:</h2>";
+    }
 
     // Print the track results
     if (isset($search_data['tracks']['items'])) {
@@ -120,45 +176,52 @@ function displaySearchResults($search_response, $query) {
     }
 }
 
-$access_token = get_access_token();
-
-// Define the Spotify API search endpoint
-$search_endpoint = 'https://api.spotify.com/v1/search';
-
 // Define the search query
-$query = $_GET['value'];
+$value = $_GET['value'];
 
-// Define the search types
-$types = 'artist,album,track';
+if (checkKeyWordDb($dbname, $value)) {
+    $search_response = getKeyWordFromDb($dbname, $value);
+    $local = true;
+} else {
 
-// Define the options for the stream context to send the GET request to the search endpoint
-$search_options = array(
-    'http' => array(
-        'method' => 'GET',
-        'header' => "Authorization: Bearer ".$access_token."\r\n" .
-        "Content-Type: application/json\r\n",
-    ),
-);
+    $access_token = get_access_token();
 
-// Create the URL for the search endpoint with the query and types parameters
-$search_url = $search_endpoint . '?' . http_build_query(
-    array(
-        'q' => $query,
-        'type' => $types,
-    )
-);
+    // Define the Spotify API search endpoint
+    $search_endpoint = 'https://api.spotify.com/v1/search';
 
 
-// Create the stream context with the options
-$search_context = stream_context_create($search_options);
 
-// Send the GET request to the Spotify API search endpoint and retrieve the response
-$search_response = file_get_contents($search_url, false, $search_context);
+    // Define the search types
+    $types = 'artist,album,track';
 
-// Decode the response JSON into an associative array
-$search_data = json_decode($search_response, true);
+    // Define the options for the stream context to send the GET request to the search endpoint
+    $search_options = array(
+        'http' => array(
+            'method' => 'GET',
+            'header' => "Authorization: Bearer " . $access_token . "\r\n" .
+            "Content-Type: application/json\r\n",
+        ),
+    );
 
-displaySearchResults($search_response, $query);
+    // Create the URL for the search endpoint with the query and types parameters
+    $search_url = $search_endpoint . '?' . http_build_query(
+        array(
+            'q' => $value,
+            'type' => $types,
+        )
+    );
 
-connectToDb($dbname);
+
+    // Create the stream context with the options
+    $search_context = stream_context_create($search_options);
+
+    // Send the GET request to the Spotify API search endpoint and retrieve the response
+    $search_response = file_get_contents($search_url, false, $search_context);
+
+    insertintoDB($dbname, $value, $search_response, $types);
+    $local = false;
+}
+
+displaySearchResults($search_response, $value, $local);
+
 ?>
