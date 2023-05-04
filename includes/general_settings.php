@@ -110,7 +110,13 @@ function save_changes()
 
 function purge()
 {
+    require_once 'config.php';
+    $conn = ABSPATH . 'wp-content/plugins/ProjetWebServiceWordPress/'.$dbname;
+    $db = new SQLite3($conn);
 
+    $req1 = "DELETE FROM records;";
+    $result = $db->querySingle($req1);
+    
 }
 ?>
 
