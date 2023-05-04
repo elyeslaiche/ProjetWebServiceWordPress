@@ -12,7 +12,7 @@ function admin_menu()
 
   add_menu_page(
     'Paramètres généraux',
-    'General Settings',
+    'Spotify settings',
     'manage_options',
     'menuparent',
     'general_settings'

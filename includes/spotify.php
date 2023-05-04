@@ -115,6 +115,24 @@ function insertintoDB($dbname, $keyword, $jsonResponse, $types)
     $db->close();
 }
 
+function getLimit($dbname){
+    $parent_dir = str_replace('\\', '/', dirname(__DIR__));
+    // Path to the SQLite database file
+    $conn = $parent_dir . '/' . $dbname;
+
+    // Connexion à la base de données SQLite
+    $db = new SQLite3($conn);
+
+    // Récupération des données de la table records
+    $req1 = "SELECT number_of_records FROM parameters";
+    $result = $db->query($req1);
+
+
+    // Fermeture de la connexion à la base de données
+    $row = $result->fetchArray();
+    $db->close();
+    return $row[0];
+}
 
 function displaySearchResults($search_response, $query, $local)
 {
@@ -208,6 +226,7 @@ if (checkKeyWordDb($dbname, $value)) {
         array(
             'q' => $value,
             'type' => $types,
+            'limit' => getLimit($dbname) 
         )
     );
 
