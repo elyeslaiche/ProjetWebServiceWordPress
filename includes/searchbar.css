@@ -15,7 +15,8 @@
 .jumbotron {
     border-radius: 10px;
     border-width: 1px;
-    background-color: lightgray
+    background-color: lightgray;
+    width:75%
 }
 
 .BtnSearch {

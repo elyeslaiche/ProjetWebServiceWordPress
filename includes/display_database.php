@@ -1,18 +1,45 @@
 <?php
+
 require_once 'config.php';
 
 // Path to the SQLite database file
-$conn = ABSPATH . 'wp-content/plugins/ProjetWebServiceWordPress/'.$dbname;
+$conn = ABSPATH . 'wp-content/plugins/ProjetWebServiceWordPress/' . $dbname;
 
-// Connexion à la base de données SQLite
-$db = new SQLite3($conn);
+if (isset($_POST['delete_row'])) {
+    delete_row($_POST['rowId'], $conn);
+}
 
-// Récupération des données de la table records
-$req1 = "SELECT * FROM records";
-$result = $db->query($req1);
+function get_rows($conn)
+{
+    $db = new SQLite3($conn);
+    // Récupération des données de la table records
+    $req1 = "SELECT rowid,* FROM records";
+    $result = $db->query($req1);
+    
+    while ($row = $result->fetchArray()) {
+        echo "<tr>";
+        echo "<td>" . $row['keyword'] . "</td>";
+        echo "<td>" . $row['research_type'] . "</td>";
+        echo "<td>" . $row['timestamp'] . "</td>";
+        echo "<td><form method='POST'>
+        <input type='hidden'  name='rowId' value='".$row['id']."'/>
+        <input type='submit'  name='delete_row' value='Delete Row' class='button-primary'/></form></td>";
+        echo "</tr>";
+    }
+    $db->close();
+}
 
-// Fermeture de la connexion à la base de données
-//$db->close();
+function delete_row($Id, $conn)
+{
+    $db = new SQLite3($conn);
+    // Récupération des données de la table records
+    $req1 = "DELETE FROM records WHERE id = '" . $Id . "'";
+    $db->query($req1);
+    $db->close();
+}
+
+
+
 ?>
 
 <div class="wrap">
@@ -24,28 +51,22 @@ $result = $db->query($req1);
             <form method="post" action="">
                 <table class="form-table">
                     <thead>
-                    <tr>
-                        <th>Keywords</th>
-                        <th>Research_Type</th>
-                        <th>Timestamp</th>
-                    </tr>
+                        <tr>
+                            <th>Keywords</th>
+                            <th>Research_Type</th>
+                            <th>Timestamp</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <?php
-                    while ($row = $result->fetchArray()) {
-                        echo "<tr>";
-                        echo "<td>" . $row['keyword'] . "</td>";
-                        echo "<td>" . $row['research_type'] . "</td>";
-                        echo "<td>" . $row['timestamp'] . "</td>";
-                        echo "</tr>";
-                    }
-                    // Fermeture de la connexion à la base de données
-                    $db->close();
-                    ?>
+                        <?php
+                        
+                        $row = get_rows($conn);
+                        // Fermeture de la connexion à la base de données
+                        
+                        ?>
                     </tbody>
                 </table>
             </form>
         </div>
     </div>
 </div>
-

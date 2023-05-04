@@ -38,7 +38,7 @@ function create_database()
 
     $req2 = "
             CREATE TABLE IF NOT EXISTS records (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 keyword VARCHAR(255) NOT NULL,
                 research_type VARCHAR(255) NOT NULL,
                 record VARCHAR NOT NULL,
@@ -116,7 +116,7 @@ function purge()
 
     $req1 = "DELETE FROM records;";
     $result = $db->querySingle($req1);
-    
+    $db->close();
 }
 ?>
 
