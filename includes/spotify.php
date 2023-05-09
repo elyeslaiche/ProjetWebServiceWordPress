@@ -115,7 +115,8 @@ function insertintoDB($dbname, $keyword, $jsonResponse, $types)
     $db->close();
 }
 
-function getLimit($dbname){
+function getLimit($dbname)
+{
     $parent_dir = str_replace('\\', '/', dirname(__DIR__));
     // Path to the SQLite database file
     $conn = $parent_dir . '/' . $dbname;
@@ -194,53 +195,55 @@ function displaySearchResults($search_response, $query, $local)
     }
 }
 
-// Define the search query
-$value = $_GET['value'];
+if (isset($_GET['value'])) {
+    // Define the search query
+    $value = $_GET['value'];
 
-if (checkKeyWordDb($dbname, $value)) {
-    $search_response = getKeyWordFromDb($dbname, $value);
-    $local = true;
-} else {
+    if (checkKeyWordDb($dbname, $value)) {
+        $search_response = getKeyWordFromDb($dbname, $value);
+        $local = true;
+    } else {
 
-    $access_token = get_access_token();
+        $access_token = get_access_token();
 
-    // Define the Spotify API search endpoint
-    $search_endpoint = 'https://api.spotify.com/v1/search';
-
-
-
-    // Define the search types
-    $types = 'artist,album,track';
-
-    // Define the options for the stream context to send the GET request to the search endpoint
-    $search_options = array(
-        'http' => array(
-            'method' => 'GET',
-            'header' => "Authorization: Bearer " . $access_token . "\r\n" .
-            "Content-Type: application/json\r\n",
-        ),
-    );
-
-    // Create the URL for the search endpoint with the query and types parameters
-    $search_url = $search_endpoint . '?' . http_build_query(
-        array(
-            'q' => $value,
-            'type' => $types,
-            'limit' => getLimit($dbname) 
-        )
-    );
+        // Define the Spotify API search endpoint
+        $search_endpoint = 'https://api.spotify.com/v1/search';
 
 
-    // Create the stream context with the options
-    $search_context = stream_context_create($search_options);
 
-    // Send the GET request to the Spotify API search endpoint and retrieve the response
-    $search_response = file_get_contents($search_url, false, $search_context);
+        // Define the search types
+        $types = 'artist,album,track';
 
-    insertintoDB($dbname, $value, $search_response, $types);
-    $local = false;
+        // Define the options for the stream context to send the GET request to the search endpoint
+        $search_options = array(
+            'http' => array(
+                'method' => 'GET',
+                'header' => "Authorization: Bearer " . $access_token . "\r\n" .
+                "Content-Type: application/json\r\n",
+            ),
+        );
+
+        // Create the URL for the search endpoint with the query and types parameters
+        $search_url = $search_endpoint . '?' . http_build_query(
+            array(
+                'q' => $value,
+                'type' => $types,
+                'limit' => getLimit($dbname)
+            )
+        );
+
+
+        // Create the stream context with the options
+        $search_context = stream_context_create($search_options);
+
+        // Send the GET request to the Spotify API search endpoint and retrieve the response
+        $search_response = file_get_contents($search_url, false, $search_context);
+
+        insertintoDB($dbname, $value, $search_response, $types);
+        $local = false;
+    }
+
+    displaySearchResults($search_response, $value, $local);
 }
-
-displaySearchResults($search_response, $value, $local);
 
 ?>
